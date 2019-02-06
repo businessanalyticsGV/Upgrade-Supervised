@@ -27,7 +27,7 @@ print(df.shape)
 print(df.head())
 print('There are '+str(len(list(np.unique(df['%MemberID']))))+' members that upgraded')
 
-df.to_csv('dataframe.csv')
+df.to_csv('dataframe.csv',index = False)
 
 ###############################################
 print('\n\nTime:'+str(time.time()-start_time))
