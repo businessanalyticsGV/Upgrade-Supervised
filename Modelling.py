@@ -18,8 +18,20 @@ df = pd.read_csv('dataframe.csv')
 ### CREATED TARGET VARIABLE
 df['upgrade'] = [1 if df.iloc[i][16] == 1 else 0 for i in range(df.shape[0])][1:]+[0]
 
-print(df.shape)
+### SPLIT TEST AND TRAIN
+
+ls_indexVariables = ['%MemberId','mix','score_date','scores']
+target = ['upgrade']
+ls_contVariables = [c for c in df if c not in ls_indexVariables+target]
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+X_train, X_test, y_train, y_test = train_test_split(df[ls_contVariables],df[target],
+test_size=.7, stratify=df[target])
+
+model = LogisticRegression().fit(X_train,y_train)
 
 ###############################################
-print('\n\nTime:'+str(time.time()-start_time))
+print('\n\n Time:'+str(time.time()-start_time))
 ###############################################
