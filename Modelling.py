@@ -2,6 +2,7 @@
 # SUPERVISED MODELLING USING THE UNSUPERVISED DB
 #######################
 
+print('Modelling...')
 import time
 start_time = time.time()
 
@@ -9,7 +10,6 @@ start_time = time.time()
 
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LogisticRegression
 
 pd.set_option('display.max_columns',500)
 
@@ -35,6 +35,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.gaussian_process import GaussianProcessClassifier
 
 X_train, X_test, y_train, y_test = train_test_split(df[ls_contVariables],df[target],
 test_size=.7, stratify=df[target])
@@ -43,12 +45,15 @@ scaler = StandardScaler().fit(X_train)
 X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
-dic_models = {'Logistic Regression':LogisticRegression().fit(X_train,y_train),
-'Random Forest':RandomForestClassifier().fit(X_train,y_train),
-'Neural Network Classifier': MLPClassifier().fit(X_train,y_train),
-'Discriminant Analysis':QuadraticDiscriminantAnalysis().fit(X_train,y_train),
-'KNeighbors Classifier':KNeighborsClassifier().fit(X_train,y_train)
-# 'Suppor Vector Machine':SVC(kernel="linear", C=0.025).fit(X_train,y_train)}
+dic_models = {\
+# 'Logistic Regression':LogisticRegression().fit(X_train,y_train), #y
+# 'Random Forest':RandomForestClassifier().fit(X_train,y_train), #y
+# 'Neural Network Classifier': MLPClassifier().fit(X_train,y_train), #y
+# 'Discriminant Analysis':QuadraticDiscriminantAnalysis().fit(X_train,y_train),
+# 'KNeighbors Classifier':KNeighborsClassifier().fit(X_train,y_train),
+# 'Gaussian Naive Bayes':GaussianNB().fit(X_train,y_train) #y
+# 'Gaussian Process Classifier':GaussianProcessClassifier().fit(X_train,y_train)
+'Suppor Vector Machine':SVC().fit(X_train,y_train)
 }
 ### MODEL SCORING
 for model in dic_models:
