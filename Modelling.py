@@ -17,19 +17,21 @@ df = pd.read_csv('dataframe.csv')
 df = df[df['mix'] == 'INT']
 
 ### CREATED TARGET VARIABLE
+
+ls_compro = list(np.where(df['dst_LastContractAndToday'] == 1, 1,0)) 
+df['compro'] = ls_compro[1:len(ls_compro)]+[0]
+
 ls_membersBack = list(df['%MemberID'])
-ls_membersBack = [0]+ls_membersBack[0:len(ls_membersBack)-1]
+df['MemberAnterior'] = ls_membersBack[1:len(ls_membersBack)]+[0]
 
-df['MemberAnterior'] = ls_membersBack
 df['MemberAnterior'] = (df['MemberAnterior'] == df['%MemberID']).astype(int)
-df['ContratoNuevo'] = np.where(df['dst_LastContractAndToday'] == 1,1,0)
-df['Validador'] = [1 if ant+mem == 2 else 0 for ant,mem in zip(df['MemberAnterior'],df['ContratoNuevo'])]
 
-df['upgrade'] = list(df['Validador'])
+df['upgrade'] = [1 if ant+mem == 2 else 0 for ant,mem in zip(df['MemberAnterior'],df['compro'])]
 
+# df.to_csv('test.csv',index=False)
 
-df = df[[c for c in df if c not in ['MemberAnterior','ContratoNuevo','Validador']]]
-df.to_csv('test.csv',index=False)
+df = df[[c for c in df if c not in ['MemberAnterior','compro']]]
+
 ### SPLIT TEST AND TRAIN
 
 ls_indexVariables = ['%MemberId','mix','score_date']
@@ -57,9 +59,9 @@ X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
 dic_models = {\
-'Logistic Regression':LogisticRegression().fit(X_train,y_train), #y
+# 'Logistic Regression':LogisticRegression().fit(X_train,y_train), #y
 'Random Forest':RandomForestClassifier().fit(X_train,y_train) #y
-# 'Neural Network Classifier': MLPClassifier().fit(X_train,y_train), #y
+# 'Neural Network Classifier': MLPClassifier().fit(X_train,y_train) #y
 # 'Discriminant Analysis':QuadraticDiscriminantAnalysis().fit(X_train,y_train),
 # 'KNeighbors Classifier':KNeighborsClassifier().fit(X_train,y_train),
 # 'Gaussian Naive Bayes':GaussianNB().fit(X_train,y_train) #y
