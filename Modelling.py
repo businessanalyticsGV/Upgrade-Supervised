@@ -47,6 +47,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
@@ -61,14 +62,15 @@ X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
 dic_models = {\
-# 'Logistic Regression':LogisticRegression().fit(X_train,y_train), #y
-'Random Forest':RandomForestClassifier().fit(X_train,y_train) #y
+# 'Logistic Regression':LogisticRegression().fit(X_train,y_train) #y
+# 'Random Forest':RandomForestClassifier().fit(X_train,y_train) #y
 # 'Neural Network Classifier': MLPClassifier().fit(X_train,y_train) #y
-# 'Discriminant Analysis':QuadraticDiscriminantAnalysis().fit(X_train,y_train),
-# 'KNeighbors Classifier':KNeighborsClassifier().fit(X_train,y_train),
+# 'Discriminant Analysis':QuadraticDiscriminantAnalysis().fit(X_train,y_train)
+# 'KNeighbors Classifier':KNeighborsClassifier().fit(X_train,y_train)
 # 'Gaussian Naive Bayes':GaussianNB().fit(X_train,y_train) #y
 # 'Gaussian Process Classifier':GaussianProcessClassifier().fit(X_train,y_train)
 # 'Suppor Vector Machine':SVC().fit(X_train,y_train)
+'Decision Tree Classifier':DecisionTreeClassifier().fit(X_train,y_train)
 }
 
 dic_params = {}
@@ -85,52 +87,54 @@ for model in dic_models:
     dic_params[model] = dic_models[model].get_params()
     print('Parameters:\n',dic_params[model])
 
-print(df.columns)
-### GRIDSEARCH FOR PARAMETER OPTIMIZATION
-# print('First is Done')
+## GRIDSEARCH FOR PARAMETER OPTIMIZATION
+print('First is Done')
 
-# from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV
 
-# # Number of trees in random forest
-# n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
-# # Number of features to consider at every split
-# max_features = ['auto', 'sqrt']
-# # Maximum number of levels in tree
-# max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
-# max_depth.append(None)
-# # Minimum number of samples required to split a node
-# min_samples_split = [2, 5, 10]
-# # Minimum number of samples required at each leaf node
-# min_samples_leaf = [1, 2, 4]
-# # Method of selecting samples for training each tree
-# bootstrap = [True, False]
-# # Create the random grid
-# random_grid = {'n_estimators': n_estimators,
-#                'max_features': max_features,
-#                'max_depth': max_depth,
-#                'min_samples_split': min_samples_split,
-#                'min_samples_leaf': min_samples_leaf,
-#                'bootstrap': bootstrap}
+# Number of trees in random forest
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+# Number of features to consider at every split
+max_features = ['auto', 'sqrt']
+# Maximum number of levels in tree
+max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+max_depth.append(None)
+# Minimum number of samples required to split a node
+min_samples_split = [2, 5, 10]
+# Minimum number of samples required at each leaf node
+min_samples_leaf = [1, 2, 4]
+# Method of selecting samples for training each tree
+bootstrap = [True, False]
+# Create the random grid
+random_grid = {\
+            #    'n_estimators': n_estimators,
+               'max_features': max_features,
+               'max_depth': max_depth,
+               'min_samples_split': min_samples_split,
+               'min_samples_leaf': min_samples_leaf
+            #    'bootstrap': bootstrap
+}
 
-# rf = RandomForestClassifier()
-# model_random = RandomizedSearchCV(estimator=rf,param_distributions=random_grid,n_iter=100,cv=3,verbose=2,
-# random_state=42,n_jobs=-1)
+rf = DecisionTreeClassifier()
+model_random = GridSearchCV(estimator=rf,param_grid=random_grid,cv=3,verbose=2,
+n_jobs=-1)
     
-# dic_models['RGS Random Trees'] = model_random.fit(X_train,y_train)
+dic_models['RGS Random Trees'] = model_random.fit(X_train,y_train)
 
-# dic_params = {}
-# ### MODEL SCORING
-# for model in dic_models:
-#     print('\n\n++'+model)
+dic_params = {}
+### MODEL SCORING
+for model in dic_models:
+    print('\n\n++'+model)
 
-#     score = roc_auc_score(y_train,dic_models[model].predict(X_train))
-#     print('Train Model Score:'+str(score))
+    score = roc_auc_score(y_train,dic_models[model].predict(X_train))
+    print('Train Model Score:'+str(score))
 
-#     score = roc_auc_score(y_test,dic_models[model].predict(X_test))
-#     print('Test Model Score:'+str(score))
+    score = roc_auc_score(y_test,dic_models[model].predict(X_test))
+    print('Test Model Score:'+str(score))
 
-#     dic_params[model] = dic_models[model].get_params()
-#     print('Parameters:\n',dic_params[model])
+    dic_params[model] = dic_models[model].get_params()
+    print('Parameters:\n',dic_params[model])
 
 ###############################################
 print('\n\n Time:'+str(time.time()-start_time))
