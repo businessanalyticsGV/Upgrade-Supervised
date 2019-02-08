@@ -15,6 +15,10 @@ pd.set_option('display.max_columns',500)
 
 df = pd.read_csv('dataframe.csv')
 df = df[df['mix'] == 'INT']
+df_newMembers = df.groupby(['%MemberID'], as_index = False)[['cnt_BroughtContracts']].max()
+df_newMembers.rename(columns = {'cnt_BroughtContracts':'NewMember'},inplace=True)
+df = df.merge(df_newMembers,how='left',on=['%MemberID'])
+df = df[df['NewMember']!=1]
 
 ### CREATED TARGET VARIABLE
 
@@ -28,10 +32,8 @@ df['MemberAnterior'] = (df['MemberAnterior'] == df['%MemberID']).astype(int)
 
 df['upgrade'] = [1 if ant+mem == 2 else 0 for ant,mem in zip(df['MemberAnterior'],df['compro'])]
 
-# df.to_csv('test.csv',index=False)
-
-df = df[[c for c in df if c not in ['MemberAnterior','compro']]]
-
+df = df[[c for c in df if c not in ['MemberAnterior','compro','NewMember']]]
+df.to_csv('test.csv',index=False)
 ### SPLIT TEST AND TRAIN
 
 ls_indexVariables = ['%MemberId','mix','score_date']
